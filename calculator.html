@@ -1,0 +1,186 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calcula tu cuota - Simulador Real</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f8f8f8;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      text-align: center;
+      color: #003057;
+      margin-top: 2rem;
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin: 1rem;
+    }
+
+    .tabs button {
+      padding: 0.7rem 1.5rem;
+      border-radius: 25px;
+      border: 2px solid #ccc;
+      background: #fff;
+      color: #003057;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .tabs button.active {
+      border-color: #003057;
+      background: #eaf2fb;
+    }
+
+    .card {
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 1rem;
+      margin-bottom: 0.3rem;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.7rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    .link-cups {
+      display: block;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    button.calculate {
+      width: 100%;
+      margin-top: 2rem;
+      background: #ff8200;
+      color: white;
+      border: none;
+      padding: 0.8rem;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      cursor: pointer;
+    }
+
+    .result {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 1.2rem;
+      color: #003057;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Calcula tu cuota</h1>
+
+  <div class="tabs">
+    <button class="active" onclick="selectTipo(this, 'luz')">luz</button>
+    <button onclick="selectTipo(this, 'gas')">gas</button>
+    <button onclick="selectTipo(this, 'luzygas')">Luz y gas</button>
+  </div>
+
+  <div class="card">
+    <p>Para calcular tu tarifa necesitamos comprobar tu consumo de los últimos 12 meses. Puedes hacerlo con tu dirección o con el código CUPS que aparece en tus facturas.</p>
+
+    <label>Busca tu dirección</label>
+    <input type="text" id="direccion" placeholder="Busca tu dirección" />
+    <input type="text" id="extra" placeholder="Piso, puerta (bloque, escalera...)" />
+
+    <a href="#" class="link-cups" onclick="usarCUPS()">O introduce tu código CUPS</a>
+
+    <div id="cupsInput" style="display: none;">
+      <label>Código CUPS</label>
+      <input type="text" id="cups" placeholder="Introduce tu código CUPS" />
+    </div>
+
+    <label>Ciudad</label>
+    <select id="ciudad">
+      <option value="">Selecciona tu ciudad</option>
+      <option value="madrid">Madrid</option>
+      <option value="barcelona">Barcelona</option>
+      <option value="valencia">Valencia</option>
+      <option value="sevilla">Sevilla</option>
+      <option value="bilbao">Bilbao</option>
+    </select>
+
+    <label>Consumo anual estimado (kWh)</label>
+    <input type="number" id="consumo" placeholder="Ej. 3000" />
+
+    <button class="calculate" onclick="calcular()">Calcular</button>
+
+    <div class="result" id="resultado"></div>
+  </div>
+
+  <script>
+    let tipo = 'luz';
+
+    function selectTipo(button, tipoSeleccionado) {
+      document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+      button.classList.add('active');
+      tipo = tipoSeleccionado;
+    }
+
+    function usarCUPS() {
+      document.getElementById('cupsInput').style.display = 'block';
+    }
+
+    function calcular() {
+      const ciudad = document.getElementById('ciudad').value;
+      const consumo = parseFloat(document.getElementById('consumo').value);
+
+      if (!ciudad || isNaN(consumo) || consumo <= 0) {
+        document.getElementById('resultado').innerText = "Por favor completa todos los campos válidos.";
+        return;
+      }
+
+      const precios = {
+        luz: 0.18,
+        gas: 0.08,
+        luzygas: 0.13
+      };
+
+      const factorCiudad = {
+        madrid: 1.00,
+        barcelona: 1.05,
+        valencia: 0.98,
+        sevilla: 1.02,
+        bilbao: 1.03
+      };
+
+      const precio = precios[tipo] || 0.15;
+      const factor = factorCiudad[ciudad] || 1.0;
+
+      const anual = consumo * precio * factor;
+      const mensual = anual / 12;
+
+      document.getElementById('resultado').innerText = 
+        `Tu tarifa estimada mensual (${tipo.toUpperCase()}, ${ciudad.charAt(0).toUpperCase() + ciudad.slice(1)}): €${mensual.toFixed(2)} al mes.`;
+    }
+  </script>
+
+</body>
+</html>
